@@ -10,8 +10,10 @@ from pptx.oxml.ns import qn
 IMG = "/home/user/POWERPOINT/画像"
 
 prs = Presentation()
-prs.slide_width = Inches(13.333)
-prs.slide_height = Inches(7.5)
+W = 13.333
+H = 7.5
+prs.slide_width = Inches(W)
+prs.slide_height = Inches(H)
 
 # --- Colors ---
 BLACK = RGBColor(0, 0, 0)
@@ -22,7 +24,8 @@ GOLD = RGBColor(212, 175, 55)
 DIM_GOLD = RGBColor(160, 130, 40)
 WHITE = RGBColor(245, 240, 235)
 LIGHT_GRAY = RGBColor(190, 185, 180)
-MID_GRAY = RGBColor(130, 125, 120)
+
+BG = (18, 12, 12)  # Standard dark background
 
 
 def set_bg(slide, r, g, b):
@@ -63,21 +66,12 @@ def add_multiline(slide, left, top, width, height, lines, size=20,
     return box
 
 
-def add_rect(slide, left, top, width, height, fill_color, alpha=None):
+def add_rect(slide, left, top, width, height, fill_color):
     shape = slide.shapes.add_shape(
         MSO_SHAPE.RECTANGLE, Inches(left), Inches(top), Inches(width), Inches(height))
     shape.fill.solid()
     shape.fill.fore_color.rgb = fill_color
     shape.line.fill.background()
-    if alpha is not None:
-        for el in shape._element.spPr.iter():
-            if el.tag.endswith('}solidFill'):
-                color_elem = el.find(qn('a:srgbClr'))
-                if color_elem is not None:
-                    a_elem = color_elem.makeelement(qn('a:alpha'), {})
-                    a_elem.set('val', str(int(alpha * 1000)))
-                    color_elem.append(a_elem)
-                break
     return shape
 
 
@@ -93,42 +87,54 @@ def gold_line(slide, left, top, width):
 
 
 def header_bar(slide, title):
-    """Dark red header bar with title and gold underline."""
-    add_rect(slide, 0, 0, 13.333, 1.2, DARK_RED)
+    add_rect(slide, 0, 0, W, 1.2, DARK_RED)
     add_text(slide, 0.5, 0.15, 12, 0.9, title, size=42, color=WHITE, bold=True)
-    gold_line(slide, 0.5, 1.2, 12.333)
+    gold_line(slide, 0.5, 1.2, W - 1.0)
 
+
+# === Layout constants ===
+# Left panel: image area 0 ~ 5.5 | gap | text area 6.0 ~ 12.8
+# Right panel: text area 0.5 ~ 7.0 | gap | image area 7.5 ~ 12.8
+IMG_LEFT_X = 0.8       # image on left side
+TEXT_RIGHT_X = 6.0      # text when image is on left
+TEXT_RIGHT_W = 6.8      # text width when image is on left
+IMG_RIGHT_X = 8.0       # image on right side
+TEXT_LEFT_X = 0.8       # text when image is on right
+TEXT_LEFT_W = 6.8       # text width when image is on right
+CONTENT_Y = 1.6         # y start below header
 
 
 # ============================================================
-# Slide 1: TITLE (画像を左寄りに配置 + 右にテキスト)
+# Slide 1: TITLE (テキスト左 + 画像右中央)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 18, 12, 12)
+set_bg(s, *BG)
 
-add_img(s, f"{IMG}/crimson-1.JPG", 0.8, 0.8, height=5.8)
-
-# Vertical gold accent line
-add_rect(s, 5.8, 0.5, 0.05, 6.5, GOLD)
-
-gold_line(s, 6.3, 2.0, 5.5)
-add_text(s, 6.3, 2.3, 6.0, 1.5, "CRIMSON", size=76, color=CRIMSON, bold=True)
-add_text(s, 6.3, 3.6, 6.0, 0.7, "Knolastname", size=36, color=GOLD)
-add_text(s, 6.3, 4.4, 6.0, 0.7, "Greed Ring's Most Feared Mafia Boss",
+# Text on left
+gold_line(s, 1.0, 2.0, 5.0)
+add_text(s, 1.0, 2.3, 5.5, 1.5, "CRIMSON", size=76, color=CRIMSON, bold=True)
+add_text(s, 1.0, 3.7, 5.5, 0.7, "Knolastname", size=36, color=GOLD)
+add_text(s, 1.0, 4.5, 5.5, 0.7, "Greed Ring's Most Feared Mafia Boss",
          size=20, color=LIGHT_GRAY)
-gold_line(s, 6.3, 5.3, 5.5)
-
-add_text(s, 6.3, 6.2, 6.0, 0.5,
+gold_line(s, 1.0, 5.4, 5.0)
+add_text(s, 1.0, 6.2, 5.5, 0.5,
          "HELLUVA BOSS  |  Character Presentation", size=14, color=DIM_GOLD)
+
+# Vertical gold accent
+add_rect(s, 6.8, 0.5, 0.05, 6.5, GOLD)
+
+# Image on right, vertically centered (924x904, ratio ~1.0, height=5.0 → width≈5.1)
+add_img(s, f"{IMG}/crimson-1.JPG", 7.5, 1.25, height=5.0)
 
 # ============================================================
 # Slide 2: PROFILE (画像左 + テキスト右)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 18, 12, 12)
+set_bg(s, *BG)
 
 header_bar(s, "PROFILE")
-add_img(s, f"{IMG}/crimson-4.PNG", 0.8, 1.8, height=5.0)
+# crimson-4.PNG: 697x916 (ratio 0.76), height=4.5 → width≈3.4
+add_img(s, f"{IMG}/crimson-4.PNG", 1.0, 1.8, height=4.5)
 
 info_lines = [
     "名前 :  Crimson（クリムゾン）",
@@ -139,22 +145,22 @@ info_lines = [
     "声優 :  Richard Steven Horvitz",
     "初登場 :  \"Exes and Oohs\"（S2E6）",
 ]
-add_multiline(s, 5.5, 2.0, 7.0, 4.5, info_lines, size=22, color=WHITE, spacing=1.8)
+add_multiline(s, 5.5, 1.8, 7.3, 4.0, info_lines, size=22, color=WHITE, spacing=1.5)
 
-add_text(s, 5.5, 6.2, 7.0, 0.6,
+add_text(s, 5.5, 6.5, 7.3, 0.5,
          "強欲の環を支配するマフィアの頂点に立つインプ。",
-         size=16, color=LIGHT_GRAY, align=PP_ALIGN.LEFT)
+         size=15, color=LIGHT_GRAY, align=PP_ALIGN.LEFT)
 
 # ============================================================
-# Slide 3: APPEARANCE (画像左1枚 + テキスト右)
+# Slide 3: APPEARANCE (画像左 + テキスト右)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 18, 12, 12)
+set_bg(s, *BG)
 
 header_bar(s, "外見")
-# crimson-3は透過PNGなので暗い背景パネルを先に敷く
-add_rect(s, 0.3, 1.5, 5.5, 5.7, NEAR_BLACK)
-add_img(s, f"{IMG}/crimson-3.PNG", 0.5, 1.5, height=5.5)
+# crimson-3.PNG: transparent bg → dark panel behind
+add_rect(s, 0.5, 1.5, 5.0, 5.7, NEAR_BLACK)
+add_img(s, f"{IMG}/crimson-3.PNG", 0.8, 1.5, height=5.5)
 
 desc_lines = [
     "Blitzoに近い長身のインプ",
@@ -165,16 +171,17 @@ desc_lines = [
     "ネイビーブルーのコートに赤いシャツ",
     "蹠行性（かかとを地面につける）の脚",
 ]
-add_multiline(s, 6.8, 1.8, 6.0, 5.0, desc_lines, size=21, color=WHITE, spacing=1.6)
+add_multiline(s, 7.0, 1.8, 5.8, 5.0, desc_lines, size=21, color=WHITE, spacing=1.6)
 
 # ============================================================
 # Slide 4: PERSONALITY (画像右 + テキスト左)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 18, 12, 12)
+set_bg(s, *BG)
 
 header_bar(s, "性格")
-add_img(s, f"{IMG}/crimson-7.JPG", 8.0, 1.8, height=5.0)
+# crimson-7.JPG: square, height=4.5 → width≈4.5
+add_img(s, f"{IMG}/crimson-7.JPG", 8.0, 1.8, height=4.8)
 
 traits = [
     "◆ 残忍かつ冷酷なマフィアのボス",
@@ -190,12 +197,13 @@ add_multiline(s, 0.8, 2.0, 6.8, 5.0, traits, size=22, color=WHITE, bold=True, sp
 # Slide 5: THE DON (画像右 + テキスト左)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 18, 12, 12)
+set_bg(s, *BG)
 
-add_rect(s, 0, 0, 6.5, 7.5, NEAR_BLACK)
-add_rect(s, 6.4, 0, 0.06, 7.5, GOLD)
+add_rect(s, 0, 0, 6.5, H, NEAR_BLACK)
+add_rect(s, 6.4, 0, 0.06, H, GOLD)
 
-add_img(s, f"{IMG}/crimson-6.JPG", 6.8, 0.3, height=6.9)
+# crimson-6.JPG: landscape, height=6.5
+add_img(s, f"{IMG}/crimson-6.JPG", 6.8, 0.5, height=6.5)
 
 add_text(s, 0.5, 0.4, 5.5, 1.0, "THE DON", size=52, color=GOLD, bold=True)
 gold_line(s, 0.5, 1.3, 5.0)
@@ -219,10 +227,11 @@ add_multiline(s, 0.8, 1.8, 5.2, 5.5, power_lines, size=20, color=WHITE, spacing=
 # Slide 6: ABILITIES (画像右 + テキスト左)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 18, 12, 12)
+set_bg(s, *BG)
 
 header_bar(s, "能力")
-add_img(s, f"{IMG}/crimson-8.JPG", 7.5, 1.5, width=5.3)
+# crimson-8.JPG: 1334x750 (landscape), width=5.0 → height≈2.8
+add_img(s, f"{IMG}/crimson-8.JPG", 7.8, 2.5, width=5.0)
 
 abilities = [
     ["統率力", "絶対的なカリスマで巨大組織を率いる"],
@@ -231,20 +240,21 @@ abilities = [
     ["演技力", "温厚な紳士から冷酷な暴君まで、\n自在に顔を使い分ける"],
 ]
 
-y = 1.6
+y = 1.7
 for title, desc in abilities:
-    add_text(s, 0.8, y, 6.0, 0.5, title, size=24, color=GOLD, bold=True, align=PP_ALIGN.LEFT)
-    add_text(s, 0.8, y + 0.45, 6.0, 0.8, desc, size=17, color=LIGHT_GRAY, align=PP_ALIGN.LEFT)
-    y += 1.35
+    add_text(s, 0.8, y, 6.5, 0.5, title, size=24, color=GOLD, bold=True, align=PP_ALIGN.LEFT)
+    add_text(s, 0.8, y + 0.5, 6.5, 0.8, desc, size=17, color=LIGHT_GRAY, align=PP_ALIGN.LEFT)
+    y += 1.4
 
 # ============================================================
 # Slide 7: CRIMSON & MOXXIE (画像左 + テキスト右) crimson-love.jpg
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 18, 18, 15)
+set_bg(s, *BG)
 
 header_bar(s, "クリムゾンとモクシー")
-add_img(s, f"{IMG}/crimson-love.jpg", 0.6, 1.6, height=5.2)
+# crimson-love.jpg: square-ish, height=4.8
+add_img(s, f"{IMG}/crimson-love.jpg", 0.8, 1.8, height=4.8)
 
 moxxie_lines = [
     "マフィアのボスの息子として、",
@@ -258,16 +268,17 @@ moxxie_lines = [
     "",
     "―― 不器用すぎる、歪んだ父の愛。",
 ]
-add_multiline(s, 6.2, 1.8, 6.5, 5.5, moxxie_lines, size=22, color=WHITE, spacing=1.2)
+add_multiline(s, 6.5, 1.8, 6.3, 5.5, moxxie_lines, size=22, color=WHITE, spacing=1.2)
 
 # ============================================================
 # Slide 8: DARK SIDE (画像左 + テキスト右)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 18, 12, 12)
+set_bg(s, *BG)
 
 header_bar(s, "THE DARK SIDE")
-add_img(s, f"{IMG}/crimson-9.JPG", 0.5, 1.8, height=5.0)
+# crimson-9.JPG: landscape, height=4.0
+add_img(s, f"{IMG}/crimson-9.JPG", 0.5, 2.0, height=4.0)
 
 dark_lines = [
     "◆ 妻を「息子の成長を阻害する存在」",
@@ -282,45 +293,49 @@ dark_lines = [
     "　 七つの大罪の一柱アスモデウス",
     "　 すら脅迫する豪胆さ",
 ]
-add_multiline(s, 6.5, 1.8, 6.3, 5.5, dark_lines, size=21, color=WHITE, bold=True, spacing=1.1)
+add_multiline(s, 7.0, 1.8, 5.8, 5.5, dark_lines, size=21, color=WHITE, bold=True, spacing=1.1)
 
 # ============================================================
-# Slide 9: KEY EPISODES (画像左 + テキスト右)
+# Slide 9: KEY EPISODES (画像右 + テキスト左)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 18, 12, 12)
+set_bg(s, *BG)
 
 header_bar(s, "登場エピソード")
-add_img(s, f"{IMG}/crimson-5.JPG", 0.8, 2.0, height=4.5)
+# crimson-5.JPG: square, height=4.5
+add_img(s, f"{IMG}/crimson-5.JPG", 8.3, 2.0, height=4.5)
 
 episodes = [
     ["Exes and Oohs（S2E6）",
-     "初登場。モクシーをチャズと政略結婚させようと画策する。"],
+     "初登場。モクシーをチャズと\n政略結婚させようと画策する。"],
     ["Oops（S2E7）",
-     "ストライカーを雇い、フィズロリを人質にして\nアスモデウスを脅迫する。"],
-    ["Mammon's Magnificent Musical\nMid-Season Special",
+     "ストライカーを雇い、フィズロリを\n人質にしてアスモデウスを脅迫する。"],
+    ["Mammon's Magnificent Musical",
      "音楽スペシャルでの登場。"],
 ]
 
 y = 1.8
 for title, desc in episodes:
-    add_text(s, 5.5, y, 7.3, 0.7, title, size=22, color=GOLD, bold=True, align=PP_ALIGN.LEFT)
-    add_text(s, 5.5, y + 0.6, 7.3, 0.9, desc, size=17, color=LIGHT_GRAY, align=PP_ALIGN.LEFT)
+    add_text(s, 0.8, y, 7.0, 0.7, title, size=22, color=GOLD, bold=True, align=PP_ALIGN.LEFT)
+    add_text(s, 0.8, y + 0.55, 7.0, 0.9, desc, size=17, color=LIGHT_GRAY, align=PP_ALIGN.LEFT)
     y += 1.7
 
 # ============================================================
-# Slide 10: WHY WE LOVE HIM (画像左 + テキスト右)
+# Slide 10: WHY WE LOVE HIM (画像左小さめ + テキスト右)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 18, 12, 18)
+set_bg(s, *BG)
 
-add_img(s, f"{IMG}/crimson-2.PNG", 0.5, 1.0, height=6.0)
+# crimson-2.PNG: 400x372 (transparent bg), small size
+# Dark panel behind transparent PNG
+add_rect(s, 0.5, 0.8, 4.5, 6.0, NEAR_BLACK)
+add_img(s, f"{IMG}/crimson-2.PNG", 0.8, 1.5, height=4.5)
 
-add_rect(s, 4.8, 0, 0.05, 7.5, GOLD)
+add_rect(s, 5.3, 0, 0.05, H, GOLD)
 
-add_text(s, 5.3, 0.5, 7.5, 0.6, "WHY WE", size=28, color=LIGHT_GRAY)
-add_text(s, 5.3, 1.0, 7.5, 0.9, "LOVE HIM", size=52, color=CRIMSON, bold=True)
-gold_line(s, 5.3, 1.9, 5.5)
+add_text(s, 5.8, 0.5, 7.0, 0.6, "WHY WE", size=28, color=LIGHT_GRAY)
+add_text(s, 5.8, 1.0, 7.0, 0.9, "LOVE HIM", size=52, color=CRIMSON, bold=True)
+gold_line(s, 5.8, 1.9, 5.0)
 
 appeal_lines = [
     "壊れきった魂の持ち主が持つ渋さと苦さ",
@@ -336,18 +351,18 @@ appeal_lines = [
     "「死ぬ技術」ではなく",
     "「生き延びる技術」を磨いた男",
 ]
-add_multiline(s, 5.5, 2.3, 6.5, 5.0, appeal_lines, size=20, color=WHITE, spacing=1.1)
+add_multiline(s, 6.0, 2.3, 6.8, 5.0, appeal_lines, size=20, color=WHITE, spacing=1.1)
 
 # ============================================================
-# Slide 11: FANART (画像中央 + 下にクレジット) crimson-fanart.PNG
+# Slide 11: FANART (画像中央 + 下にクレジット)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 18, 12, 12)
+set_bg(s, *BG)
 
 add_img(s, f"{IMG}/crimson-fanart.PNG", 3.5, 0.3, height=5.5)
 
-add_rect(s, 0, 6.1, 13.333, 1.4, NEAR_BLACK)
-gold_line(s, 0, 6.1, 13.333)
+add_rect(s, 0, 6.1, W, 1.4, NEAR_BLACK)
+gold_line(s, 0, 6.1, W)
 
 add_text(s, 0.5, 6.25, 8.0, 0.5,
          "このパワーポイントの製作者が描いたファンアートです",
