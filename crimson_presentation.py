@@ -321,21 +321,21 @@ for title, desc in episodes:
     y += 1.7
 
 # ============================================================
-# Slide 10: WHY WE LOVE HIM (画像左小さめ + テキスト右)
+# Slide 10: WHY WE LOVE HIM (画像左 + テキスト右 / 参照レイアウト寄せ)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
 set_bg(s, *BG)
 
-# crimson-2.PNG: 400x372 (transparent bg), small size
-# Dark panel behind transparent PNG
-add_rect(s, 0.5, 0.8, 4.5, 6.0, NEAR_BLACK)
-add_img(s, f"{IMG}/crimson-2.PNG", 0.8, 1.5, height=4.5)
+# crimson-2.PNG: 400x372 (transparent bg)
+# 画像をやや大きく左寄せして、余白を減らす
+add_img(s, f"{IMG}/crimson-2.PNG", 0.35, 1.35, height=4.55)
 
-add_rect(s, 5.3, 0, 0.05, H, GOLD)
+# 仕切り線を中央寄りに配置
+add_rect(s, 5.45, 0, 0.04, H, GOLD)
 
-add_text(s, 5.8, 0.5, 7.0, 0.6, "WHY WE", size=28, color=LIGHT_GRAY)
-add_text(s, 5.8, 1.0, 7.0, 0.9, "LOVE HIM", size=52, color=CRIMSON, bold=True)
-gold_line(s, 5.8, 1.9, 5.0)
+add_text(s, 6.0, 0.5, 6.6, 0.6, "WHY WE", size=28, color=LIGHT_GRAY)
+add_text(s, 6.0, 1.0, 6.6, 0.9, "LOVE HIM", size=52, color=CRIMSON, bold=True)
+gold_line(s, 6.0, 1.9, 4.85)
 
 appeal_lines = [
     "壊れきった魂の持ち主が持つ渋さと苦さ",
@@ -351,7 +351,7 @@ appeal_lines = [
     "「死ぬ技術」ではなく",
     "「生き延びる技術」を磨いた男",
 ]
-add_multiline(s, 6.0, 2.3, 6.8, 5.0, appeal_lines, size=20, color=WHITE, spacing=1.1)
+add_multiline(s, 6.15, 2.35, 6.45, 4.95, appeal_lines, size=20, color=WHITE, spacing=1.1)
 
 # ============================================================
 # Slide 11: FANART (画像中央 + 下にクレジット)
