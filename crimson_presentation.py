@@ -326,15 +326,15 @@ for title, desc in episodes:
 s = prs.slides.add_slide(prs.slide_layouts[6])
 set_bg(s, *BG)
 
-# crimson-2.PNG: 400x372 (ratio 1.075), width=6.0→height≈5.6, 左半分の中央に配置
-add_img(s, f"{IMG}/crimson-2.PNG", 0.5, 1.0, width=11.0)
+# crimson-2.PNG: 400x372, 左半分いっぱいに配置・縦中央
+add_img(s, f"{IMG}/crimson-2.PNG", 0, 1.0, width=5.5)
 
-# 仕切り線をスライド中央付近に配置
-add_rect(s, 6.6, 0, 0.04, H, GOLD)
+# 仕切り線を画像の右端すぐ横に
+add_rect(s, 5.8, 0, 0.04, H, GOLD)
 
-add_text(s, 7.1, 0.5, 5.7, 0.6, "WHY WE", size=28, color=LIGHT_GRAY)
-add_text(s, 7.1, 1.0, 5.7, 0.9, "LOVE HIM", size=52, color=CRIMSON, bold=True)
-gold_line(s, 7.1, 1.9, 5.0)
+add_text(s, 6.2, 0.5, 6.6, 0.6, "WHY WE", size=28, color=LIGHT_GRAY)
+add_text(s, 6.2, 1.0, 6.6, 0.9, "LOVE HIM", size=52, color=CRIMSON, bold=True)
+gold_line(s, 6.2, 1.9, 5.5)
 
 appeal_lines = [
     "壊れきった魂の持ち主が持つ渋さと苦さ",
@@ -350,7 +350,7 @@ appeal_lines = [
     "「死ぬ技術」ではなく",
     "「生き延びる技術」を磨いた男",
 ]
-add_multiline(s, 7.1, 2.3, 5.7, 5.0, appeal_lines, size=20, color=WHITE, spacing=1.1)
+add_multiline(s, 6.2, 2.3, 6.6, 5.0, appeal_lines, size=20, color=WHITE, spacing=1.1)
 
 # ============================================================
 # Slide 11: FANART (画像中央 + 下にクレジット)
