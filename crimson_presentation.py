@@ -327,7 +327,7 @@ s = prs.slides.add_slide(prs.slide_layouts[6])
 set_bg(s, *BG)
 
 # crimson-2.PNG: 400x372 (ratio 1.075), width=6.0→height≈5.6, 左半分の中央に配置
-add_img(s, f"{IMG}/crimson-2.PNG", 0.3, 1.0, width=6.0)
+add_img(s, f"{IMG}/crimson-2.PNG", 0.5, 1.0, width=11.0)
 
 # 仕切り線をスライド中央付近に配置
 add_rect(s, 6.6, 0, 0.04, H, GOLD)
