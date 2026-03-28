@@ -6,7 +6,6 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.oxml.ns import qn
-from PIL import Image as PILImage
 
 IMG = "/home/user/POWERPOINT/画像"
 
@@ -100,17 +99,6 @@ def header_bar(slide, title):
     gold_line(slide, 0.5, 1.2, 12.333)
 
 
-def darken_image(src_path, out_path, factor=0.35):
-    """Create a darkened version of an image for background use."""
-    img = PILImage.open(src_path).convert("RGB")
-    pixels = img.load()
-    w, h = img.size
-    for y in range(h):
-        for x in range(w):
-            r, g, b = pixels[x, y]
-            pixels[x, y] = (int(r * factor), int(g * factor), int(b * factor))
-    img.save(out_path, quality=90)
-
 
 # ============================================================
 # Slide 1: TITLE (画像を左寄りに配置 + 右にテキスト)
@@ -161,9 +149,11 @@ add_text(s, 5.5, 6.2, 7.0, 0.6,
 # Slide 3: APPEARANCE (画像左1枚 + テキスト右)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 18, 15, 20)
+set_bg(s, 18, 12, 12)
 
 header_bar(s, "外見")
+# crimson-3は透過PNGなので暗い背景パネルを先に敷く
+add_rect(s, 0.3, 1.5, 5.5, 5.7, NEAR_BLACK)
 add_img(s, f"{IMG}/crimson-3.PNG", 0.5, 1.5, height=5.5)
 
 desc_lines = [
@@ -175,30 +165,26 @@ desc_lines = [
     "ネイビーブルーのコートに赤いシャツ",
     "蹠行性（かかとを地面につける）の脚",
 ]
-add_multiline(s, 6.5, 1.8, 6.3, 5.0, desc_lines, size=21, color=WHITE, spacing=1.6)
+add_multiline(s, 6.8, 1.8, 6.0, 5.0, desc_lines, size=21, color=WHITE, spacing=1.6)
 
 # ============================================================
-# Slide 4: PERSONALITY (暗くした背景画像 + テキスト)
+# Slide 4: PERSONALITY (画像右 + テキスト左)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 10, 6, 6)
+set_bg(s, 18, 12, 12)
 
-dark_bg = f"{IMG}/_dark_crimson7.jpg"
-darken_image(f"{IMG}/crimson-7.JPG", dark_bg, factor=0.25)
-add_img(s, dark_bg, 0, 0, width=13.333)
-
-add_text(s, 0.5, 0.4, 12, 1.0, "性格", size=48, color=CRIMSON, bold=True)
-gold_line(s, 0.5, 1.3, 5.0)
+header_bar(s, "性格")
+add_img(s, f"{IMG}/crimson-7.JPG", 8.0, 1.8, height=5.0)
 
 traits = [
     "◆ 残忍かつ冷酷なマフィアのボス",
     "◆ 絶対的な恐怖で組織を支配する",
-    "◆ しかし必要な時には魅力的で温厚な顔も見せる",
+    "◆ 必要な時には魅力的で温厚な顔も見せる",
     "◆ サメ悪魔のギャング軍団を統率",
     "◆ 脅迫・暴力・心理操作を駆使する策略家",
     "◆ 冷酷と魅力のギャップに満ちた男",
 ]
-add_multiline(s, 0.8, 1.8, 7.5, 5.0, traits, size=24, color=WHITE, bold=True, spacing=1.5)
+add_multiline(s, 0.8, 2.0, 6.8, 5.0, traits, size=22, color=WHITE, bold=True, spacing=1.5)
 
 # ============================================================
 # Slide 5: THE DON (画像右 + テキスト左)
@@ -275,29 +261,28 @@ moxxie_lines = [
 add_multiline(s, 6.2, 1.8, 6.5, 5.5, moxxie_lines, size=22, color=WHITE, spacing=1.2)
 
 # ============================================================
-# Slide 8: DARK SIDE (暗くした背景画像 + テキスト)
+# Slide 8: DARK SIDE (画像左 + テキスト右)
 # ============================================================
 s = prs.slides.add_slide(prs.slide_layouts[6])
-set_bg(s, 8, 5, 5)
+set_bg(s, 18, 12, 12)
 
-dark_bg2 = f"{IMG}/_dark_crimson9.jpg"
-darken_image(f"{IMG}/crimson-9.JPG", dark_bg2, factor=0.2)
-add_img(s, dark_bg2, 0, 0, width=13.333)
-
-add_text(s, 0.5, 0.3, 12, 1.0, "THE DARK SIDE", size=48, color=CRIMSON, bold=True)
-gold_line(s, 0.5, 1.2, 5.0)
+header_bar(s, "THE DARK SIDE")
+add_img(s, f"{IMG}/crimson-9.JPG", 0.5, 1.8, height=5.0)
 
 dark_lines = [
-    "◆ 妻を「息子の成長を阻害する存在」として排除した",
+    "◆ 妻を「息子の成長を阻害する存在」",
+    "　 として排除した",
     "",
     "◆ モクシーへの身体的・精神的虐待",
     "",
-    "◆ 組織のためなら息子すら駒として使う冷徹さ",
+    "◆ 組織のためなら息子すら",
+    "　 駒として使う冷徹さ",
     "",
     "◆ フィズロリを人質にし、",
-    "　 七つの大罪の一柱アスモデウスすら脅迫する豪胆さ",
+    "　 七つの大罪の一柱アスモデウス",
+    "　 すら脅迫する豪胆さ",
 ]
-add_multiline(s, 0.8, 1.6, 8.0, 5.5, dark_lines, size=22, color=WHITE, bold=True, spacing=1.2)
+add_multiline(s, 6.5, 1.8, 6.3, 5.5, dark_lines, size=21, color=WHITE, bold=True, spacing=1.1)
 
 # ============================================================
 # Slide 9: KEY EPISODES (画像左 + テキスト右)
