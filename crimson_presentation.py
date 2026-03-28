@@ -326,9 +326,8 @@ for title, desc in episodes:
 s = prs.slides.add_slide(prs.slide_layouts[6])
 set_bg(s, *BG)
 
-# crimson-2.PNG: 400x372 (transparent bg)
-# 画像をやや大きく左寄せして、余白を減らす
-add_img(s, f"{IMG}/crimson-2.PNG", 0.35, 1.35, height=4.55)
+# crimson-2.PNG: 400x372 (transparent bg), left side full height
+add_img(s, f"{IMG}/crimson-2.PNG", 0, 0.3, height=7.0)
 
 # 仕切り線を中央寄りに配置
 add_rect(s, 5.45, 0, 0.04, H, GOLD)
